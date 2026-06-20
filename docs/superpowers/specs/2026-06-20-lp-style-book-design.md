@@ -89,8 +89,9 @@ One page per brand. Shows:
 
 ### Admin Area (LP only)
 Accessible only when logged in. Includes:
-- Add / edit / archive items
-- Upload photos for items
+- Add items via URL import (see Product Import Workflow below)
+- Edit / archive items
+- Upload additional photos for items
 - Log a wear (date, season, occasion)
 - Write or edit a recommendation
 - Write or edit a review (LP Score)
@@ -101,14 +102,46 @@ Accessible only when logged in. Includes:
 
 ---
 
+## Product Import Workflow
+
+The primary way LP logs items is by importing from a product URL. This avoids manual data entry for fields that already exist on the brand's website.
+
+**Step 1 — Paste a URL or search by name**
+LP either pastes a direct product URL (e.g. from Drake's, Buck Mason, Mr Porter) or types the product name into a search field in the admin area.
+
+**Step 2 — Scrape the source**
+The app fetches the page and extracts: product name, brand, description, materials, price, and images. Images are downloaded and saved to Supabase Storage so they are permanently owned by LP (not linked to an external CDN that could break).
+
+**Step 3 — Auto-fallback to alternative sites**
+If the original URL is blocked or returns insufficient data, the app automatically searches for the same product across alternative retail sources (e.g. Mr Porter, SSENSE, END Clothing, the brand's own site). It presents the best matches found and lets LP pick which source to import from. This happens without LP needing to do anything — the fallback is automatic.
+
+**Step 4 — Manual entry (last resort)**
+Only if all sources fail does the app fall back to a manual entry form, pre-filled with whatever partial data was found.
+
+**Step 5 — Review and categorise the draft**
+LP reviews the pre-filled draft and answers categorisation questions before saving:
+- **Do you own this item?** If yes → added to My Collection. If no → not added to collection.
+- **Add to Wishlist Pipeline?** If yes → added as a Wishlist item with a starting status of `Wishlist`.
+- **Publish as a Recommendation?** If yes → LP writes their take and it appears on the Recommendations page.
+- An item can be checked into more than one section simultaneously (e.g. owned and also a recommendation).
+
+LP can also manually add or remove photos, edit any imported field, and fill in LP-specific fields (LP Score, wear data, notes) before or after saving.
+
+---
+
 ## Data Model
 
 ### Item
 - Name, brand (FK), category, subcategory
 - Description, material
 - Purchase price, purchase date, purchase location
+- Source URL (where the item was imported from)
 - Status: `owned` | `archived`
-- Multiple photos (Supabase Storage)
+- Presence flags:
+  - `in_collection` (boolean) — appears in My Collection
+  - `in_wishlist` (boolean) — appears in Wishlist Pipeline
+  - `is_recommendation` (boolean) — appears on Recommendations page
+- Multiple photos (Supabase Storage — downloaded from source, not linked)
 - LP Score (computed from reviews)
 - Wear count (computed from wear records)
 
@@ -163,13 +196,14 @@ Accessible only when logged in. Includes:
 Prioritised build order per the project brief:
 
 1. **Database schema** — all tables, relationships, and seed data
-2. **Collection workflows** — add, edit, archive items; upload photos; browse and filter
-3. **Wear tracking and reviews** — log wears, write LP Reviews, compute LP Score
-4. **Wishlist Pipeline** — manage statuses, convert to collection item, failed purchase tracking
-5. **Dashboard analytics** — stats, insights, most/least worn
-6. **Brand pages** — per-brand profile with aggregated stats
-7. **Recommendations page** — editorial takes with labelled figure
-8. **Visual polish** — animations, transitions, final typography pass
+2. **Product import workflow** — URL scraping, auto-fallback to alternative sites, photo download to Supabase Storage, draft review form with presence flag checkboxes
+3. **Collection workflows** — edit, archive items; browse and filter by category/brand/price
+4. **Wear tracking and reviews** — log wears, write LP Reviews, compute LP Score
+5. **Wishlist Pipeline** — manage statuses, convert to collection item, failed purchase tracking
+6. **Dashboard analytics** — stats, insights, most/least worn
+7. **Brand pages** — per-brand profile with aggregated stats
+8. **Recommendations page** — editorial takes with labelled figure
+9. **Visual polish** — animations, transitions, final typography pass
 
 ---
 
