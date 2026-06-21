@@ -59,3 +59,87 @@ When scraping fails or returns incomplete data:
 **Not started.** Paused after Plan 1 (foundation) shipped on 2026-06-20.
 
 To resume: flesh out the full task breakdown (Tasks 1–N with complete code), then run subagent-driven-development.
+
+---
+
+# LP's Style Book — Plan 3: Tracking, Reviews, Wishlist, Analytics & Recommendations
+
+**Goal:** Turn the wardrobe into an active intelligence system — log wears, write reviews, manage the wishlist pipeline, surface analytics, and publish LP's editorial recommendations.
+
+**Architecture:** Admin forms for data entry (reviews, wear logs, wishlist management), server-rendered analytics pages pulling aggregated data from Supabase, and a public-facing Recommendations page with LP's written takes.
+
+**Tech Stack:** Next.js 14 App Router, Supabase, TypeScript strict
+
+## Global Constraints
+
+- TypeScript strict mode — no `any`
+- Tailwind classes only, warm minimal palette
+- Admin forms under `/admin`, public pages at `/recommendations`
+- npm only
+
+---
+
+## Plan 3 Scope (to be written out in full before execution)
+
+### What gets built
+
+1. **Wear logging** (`/admin/items/[id]/log-wear`)
+   - Quick form: date worn, season (Spring/Summer/Autumn/Winter), occasion (Casual/Smart Casual/Work/Formal/Sport)
+   - Updates wear count displayed on item cards and detail pages
+   - Cost-per-wear calculation: `purchase_price / wear_count`
+
+2. **LP Review form** (`/admin/items/[id]/review`)
+   - Sliders or number inputs for: Fit, Comfort, Quality, Versatility, Value (each 1–10)
+   - Notes text area
+   - Saves to `lp_reviews` table, immediately updates LP Score on item detail page
+
+3. **Failed purchase logging** (`/admin/items/[id]/failed`)
+   - Reason dropdown: poor fit, poor quality, poor value, rarely worn, doesn't suit style, uncomfortable, impulse purchase, other
+   - Notes field
+   - Sets item status to `archived`
+
+4. **Wishlist management** (`/admin/wishlist`)
+   - List all `wishlist_items` with their pipeline status
+   - Status pipeline: Wishlist → Researching → Considering → Purchased → Archived
+   - Move items through pipeline with a button
+   - Add notes and alternatives per wishlist item
+   - Interest score (1–10) per item
+
+5. **Analytics dashboard** (`/admin/analytics`)
+   - Total wardrobe value
+   - Average LP Score across all reviewed items
+   - Most worn items (top 10)
+   - Least worn items (candidates for removal)
+   - Cost per wear by item
+   - Spend by brand
+   - Spend by category
+   - Failed purchase rate and reasons breakdown
+
+6. **Item pairings** (`/admin/items/[id]/pairings`)
+   - Search and link items that pair well together
+   - Note field per pairing
+   - Displayed on item detail page
+
+7. **Recommendations page** (`/recommendations`)
+   - Public-facing page listing items where `is_recommendation = true`
+   - LP's written take per item (from `recommendation_entries` table)
+   - Admin form to write/edit the take: `/admin/recommendations`
+
+8. **Hero image management** (`/admin/hero`)
+   - Upload images to Supabase Storage (`hero_images` table)
+   - Set display order
+   - Delete images
+
+### Out of scope for Plan 3
+
+- Social sharing per item
+- Price drop alerts
+- Outfit builder
+
+---
+
+## Status
+
+**Not started.** Depends on Plan 2 (product import) being complete first, so items can be added efficiently before tracking begins.
+
+To resume: flesh out the full task breakdown (Tasks 1–N with complete code), then run subagent-driven-development.
